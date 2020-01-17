@@ -100,16 +100,30 @@ class App:
                     elif position == self.end:
                         self.end = None
                 # space or enter key pressed: stop drawing phase, start calculating
-                elif key == 13 or event.key == 32:
+                elif key == 13 or key == 32 or key == 271:
                     # dont start caluclating if either starting or ending point is not set
                     if self.start is None or self.end is None:
                         return
                     self.open_list.append(Node(self.start))
                     self.drawing = False
                 # escape key pressed: clear table
-                elif event_type == pygame.KEYDOWN and key == 27:
+                elif key == 27:
                     self.color_grid = np.full((self.rows, self.cols, 4), pygame.Color(255, 255, 255))
                     self.start = self.end = None
+                # s key pressed: alternate control, set starting point
+                elif key == 115:
+                    position = math.floor(self.cursor_position[0]/10), math.floor(self.cursor_position[1]/10)
+                    if self.start is not None:
+                        self.color_grid[self.start] = [255, 255, 255, 255]
+                    self.start = math.floor(position[1]), math.floor(position[0])
+                    self.color_grid[self.start] = [51, 51, 255, 255]
+                # e key pressed: alternate control, set finish point
+                elif key == 101:
+                    position = math.floor(self.cursor_position[0]/10), math.floor(self.cursor_position[1]/10)
+                    if self.end is not None:
+                        self.color_grid[self.end] = [255, 255, 255, 255]
+                    self.end = math.floor(position[1]), math.floor(position[0])
+                    self.color_grid[self.end] = [255, 255, 0, 255]
         # escape key pressed: enter drawing phase
         elif event_type == pygame.KEYDOWN and event.key == 27:
             self.drawing = True
