@@ -34,6 +34,7 @@ class App:
         self._running = True
         self.size = self.width, self.height = RESOLUTION
         self._display_surf = None
+        self._icon = None
         # cursor
         self.cursor_position = (0, 0)
         # grid
@@ -60,6 +61,8 @@ class App:
         self._display_surf.fill((128, 128, 128))
         pygame.display.set_caption(
             "A* Pathfinding visualization by Dominik Ficek")
+        self._icon = pygame.image.load("icon.png")
+        pygame.display.set_icon(self._icon)
         # grid init
         self.color_grid = np.full(
             (self.rows, self.cols, 4), pygame.Color(255, 255, 255))
