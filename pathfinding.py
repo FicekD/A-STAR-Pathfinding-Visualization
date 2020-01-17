@@ -3,6 +3,14 @@ import numpy as np
 import math
 
 
+__author__ = "Dominik Ficek"
+__license__ = "MIT"
+__version__ = "1.0"
+__maintainer__ = "Dominik Ficek"
+__email__ = "dominik.ficek@email.cz"
+__status__ = "Development"
+
+
 RESOLUTION = 800, 600
 
 
