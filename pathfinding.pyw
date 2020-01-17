@@ -1,6 +1,8 @@
 import pygame
 import numpy as np
 import math
+import sys
+import os
 
 
 __author__ = "Dominik Ficek"
@@ -11,7 +13,16 @@ __email__ = "dominik.ficek@email.cz"
 __status__ = "Development"
 
 
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+
 RESOLUTION = 800, 600
+IMG_URL = resource_path("icon.png")
 
 
 class Node:
@@ -61,8 +72,8 @@ class App:
         self._display_surf.fill((128, 128, 128))
         pygame.display.set_caption(
             "A* Pathfinding visualization by Dominik Ficek")
-        self._icon = pygame.image.load("icon.png")
-        pygame.display.set_icon(self._icon)
+        # self._icon = pygame.image.load(IMG_URL)
+        # pygame.display.set_icon(self._icon)
         # grid init
         self.color_grid = np.full(
             (self.rows, self.cols, 4), pygame.Color(255, 255, 255))
