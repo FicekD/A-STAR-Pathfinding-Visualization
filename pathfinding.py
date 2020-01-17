@@ -19,7 +19,7 @@ class Node:
 
     def __eq__(self, other):
         return self.pos == other.pos
-        
+
 
 class App:
     def __init__(self):
@@ -50,9 +50,11 @@ class App:
         self._display_surf = pygame.display.set_mode(
             self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
         self._display_surf.fill((128, 128, 128))
-        pygame.display.set_caption("A* Pathfinding visualization by Dominik Ficek")
+        pygame.display.set_caption(
+            "A* Pathfinding visualization by Dominik Ficek")
         # grid init
-        self.color_grid = np.full((self.rows, self.cols, 4), pygame.Color(255, 255, 255))
+        self.color_grid = np.full(
+            (self.rows, self.cols, 4), pygame.Color(255, 255, 255))
 
     def on_event(self, event):
         event_type = event.type
@@ -65,24 +67,30 @@ class App:
                 self.cursor_position = event.pos
                 # if dragging: draw obstacles
                 if self.drag:
-                    self.color_grid[math.floor(event.pos[1]/10), math.floor(event.pos[0]/10)] = [0, 0, 0, 255]
+                    self.color_grid[
+                        math.floor(event.pos[1]/10),
+                        math.floor(event.pos[0]/10)] = [0, 0, 0, 255]
             elif event_type == pygame.MOUSEBUTTONDOWN:
                 button = event.button
                 # left click: set obstacle, start dragging
                 if button == 1:
-                    self.color_grid[math.floor(event.pos[1]/10), math.floor(event.pos[0]/10)] = [0, 0, 0, 255]
+                    self.color_grid[
+                        math.floor(event.pos[1]/10),
+                        math.floor(event.pos[0]/10)] = [0, 0, 0, 255]
                     self.drag = True
                 # middle click: set starting point
                 elif button == 2:
                     if self.start is not None:
                         self.color_grid[self.start] = [255, 255, 255, 255]
-                    self.start = math.floor(event.pos[1]/10), math.floor(event.pos[0]/10)
+                    self.start = (math.floor(event.pos[1]/10),
+                                  math.floor(event.pos[0]/10))
                     self.color_grid[self.start] = [51, 51, 255, 255]
                 # right click: set finish point
                 elif button == 3:
                     if self.end is not None:
                         self.color_grid[self.end] = [255, 255, 255, 255]
-                    self.end = math.floor(event.pos[1]/10), math.floor(event.pos[0]/10)
+                    self.end = (math.floor(event.pos[1]/10),
+                                math.floor(event.pos[0]/10))
                     self.color_grid[self.end] = [255, 255, 0, 255]
             elif event_type == pygame.MOUSEBUTTONUP:
                 button = event.button
@@ -93,33 +101,40 @@ class App:
                 key = event.key
                 # delete key pressed: clear rectangle
                 if key == 127:
-                    position = math.floor(self.cursor_position[1]/10), math.floor(self.cursor_position[0]/10)
+                    position = (math.floor(self.cursor_position[1]/10),
+                                math.floor(self.cursor_position[0]/10))
                     self.color_grid[position] = [255, 255, 255, 255]
                     if position == self.start:
                         self.start = None
                     elif position == self.end:
                         self.end = None
-                # space or enter key pressed: stop drawing phase, start calculating
+                # space or enter key pressed: start visualization
                 elif key == 13 or key == 32 or key == 271:
-                    # dont start caluclating if either starting or ending point is not set
+                    # dont start visualization if either
+                    # starting or ending point is not set
                     if self.start is None or self.end is None:
                         return
                     self.open_list.append(Node(self.start))
                     self.drawing = False
                 # escape key pressed: clear table
                 elif key == 27:
-                    self.color_grid = np.full((self.rows, self.cols, 4), pygame.Color(255, 255, 255))
+                    self.color_grid = np.full((self.rows, self.cols, 4),
+                                              pygame.Color(255, 255, 255))
                     self.start = self.end = None
                 # s key pressed: alternate control, set starting point
                 elif key == 115:
-                    position = math.floor(self.cursor_position[0]/10), math.floor(self.cursor_position[1]/10)
+                    position = (math.floor(
+                        self.cursor_position[0]/10),
+                        math.floor(self.cursor_position[1]/10))
                     if self.start is not None:
                         self.color_grid[self.start] = [255, 255, 255, 255]
-                    self.start = math.floor(position[1]), math.floor(position[0])
+                    self.start = (math.floor(position[1]),
+                                  math.floor(position[0]))
                     self.color_grid[self.start] = [51, 51, 255, 255]
                 # e key pressed: alternate control, set finish point
                 elif key == 101:
-                    position = math.floor(self.cursor_position[0]/10), math.floor(self.cursor_position[1]/10)
+                    position = (math.floor(self.cursor_position[0]/10),
+                                math.floor(self.cursor_position[1]/10))
                     if self.end is not None:
                         self.color_grid[self.end] = [255, 255, 255, 255]
                     self.end = math.floor(position[1]), math.floor(position[0])
@@ -133,10 +148,14 @@ class App:
             # remove all path visuals
             for row in range(self.rows):
                 for col in range(self.cols):
-                    if (not np.array_equal(self.color_grid[row, col], [255, 255, 255, 255]) and
-                        not np.array_equal(self.color_grid[row, col], [0, 0, 0, 255]) and
-                        not np.array_equal(self.color_grid[row, col], [51, 51, 255, 255]) and
-                        not np.array_equal(self.color_grid[row, col], [255, 255, 0, 255])): 
+                    if (not np.array_equal(self.color_grid[row, col],
+                                           [255, 255, 255, 255]) and
+                        not np.array_equal(self.color_grid[row, col],
+                                           [0, 0, 0, 255]) and
+                        not np.array_equal(self.color_grid[row, col],
+                                           [51, 51, 255, 255]) and
+                        not np.array_equal(self.color_grid[row, col],
+                                           [255, 255, 0, 255])):
                         self.color_grid[row, col] = [255, 255, 255, 255]
 
     def step(self):
@@ -178,7 +197,8 @@ class App:
                     continue
                 new_pos = current_node.x + i, current_node.y + j
                 # check grid boundaries
-                if new_pos[0] < 0 or new_pos[1] < 0 or new_pos[0] > self.rows - 1 or new_pos[1] > self.cols - 1:
+                if(new_pos[0] < 0 or new_pos[1] < 0 or
+                   new_pos[0] > self.rows - 1 or new_pos[1] > self.cols - 1):
                     continue
                 # create new node, calculate its cost
                 node = Node(new_pos, current_node)
@@ -201,16 +221,17 @@ class App:
                 if cont:
                     continue
                 # check if node is on an obstacle
-                if np.array_equal(self.color_grid[node.pos], np.array([0, 0, 0, 255])):
+                if np.array_equal(self.color_grid[node.pos],
+                                  np.array([0, 0, 0, 255])):
                     continue
                 # add node to opened list, node can be part of a valid path
                 self.open_list.append(node)
 
-
     def render(self):
         for row in range(self.rows):
             for col in range(self.cols):
-                pygame.draw.rect(self._display_surf, self.color_grid[row, col], (10*col - 1, 10*row - 1, 9, 9))
+                pygame.draw.rect(self._display_surf, self.color_grid[row, col],
+                                 (10*col - 1, 10*row - 1, 9, 9))
         pygame.display.update()
 
     def cleanup(self):
