@@ -10,7 +10,6 @@ __license__ = "MIT"
 __version__ = "1.0"
 __maintainer__ = "Dominik Ficek"
 __email__ = "dominik.ficek@email.cz"
-__status__ = "Development"
 
 
 def resource_path(relative_path):
@@ -49,8 +48,10 @@ class App:
         # cursor
         self.cursor_position = (0, 0)
         # grid
-        self.cols, self.rows = int(self.width/10), int(self.height/10)
+        self.cols, self.rows = int(self.width/10), int((self.height-50)/10)
         self.color_grid = None
+        # buttons
+        self.font = None
         # starting and ending points
         self.start = None
         self.end = None
@@ -77,6 +78,7 @@ class App:
         # grid init
         self.color_grid = np.full(
             (self.rows, self.cols, 4), pygame.Color(255, 255, 255))
+        self.font = pygame.font.SysFont(None, 30)
 
     def on_event(self, event):
         event_type = event.type
@@ -87,6 +89,9 @@ class App:
         elif self.drawing:
             if event_type == pygame.MOUSEMOTION:
                 self.cursor_position = event.pos
+                # button section
+                if self.cursor_position[1] > self.height-50-1:
+                    return
                 # if dragging: draw obstacles
                 if self.drag:
                     self.color_grid[
@@ -94,6 +99,21 @@ class App:
                         math.floor(event.pos[0]/10)] = [0, 0, 0, 255]
             elif event_type == pygame.MOUSEBUTTONDOWN:
                 button = event.button
+                # button section
+                if self.cursor_position[1] > self.height-50-1:
+                    # filter out non left clicks on buttons
+                    if button != 1:
+                        return
+                    if self.cursor_position[0] < self.width/2:
+                        if self.start is None or self.end is None:
+                            return
+                        self.open_list.append(Node(self.start))
+                        self.drawing = False
+                    else:
+                        self.color_grid = np.full((self.rows, self.cols, 4),
+                                                  pygame.Color(255, 255, 255))
+                        self.start = self.end = None
+                    return
                 # left click: set obstacle, start dragging
                 if button == 1:
                     self.color_grid[
@@ -161,6 +181,37 @@ class App:
                         self.color_grid[self.end] = [255, 255, 255, 255]
                     self.end = math.floor(position[1]), math.floor(position[0])
                     self.color_grid[self.end] = [255, 255, 0, 255]
+        elif event_type == pygame.MOUSEBUTTONDOWN:
+            button = event.button
+            # button section
+            if self.cursor_position[1] > self.height-50-1:
+                # filter out non left clicks on buttons
+                if button != 1:
+                    return
+                if self.cursor_position[0] < self.width/2:
+                    if self.start is None or self.end is None:
+                        return
+                    self.open_list.append(Node(self.start))
+                    self.drawing = False
+                else:
+                    self.drawing = True
+                    self.finished = False
+                    self.closed_list = list()
+                    self.open_list = list()
+                    # remove all path visuals
+                    for row in range(self.rows):
+                        for col in range(self.cols):
+                            if (not np.array_equal(self.color_grid[row, col],
+                                                   [255, 255, 255, 255]) and
+                                not np.array_equal(self.color_grid[row, col],
+                                                   [0, 0, 0, 255]) and
+                                not np.array_equal(self.color_grid[row, col],
+                                                   [51, 51, 255, 255]) and
+                                not np.array_equal(self.color_grid[row, col],
+                                                   [255, 255, 0, 255])):
+                                self.color_grid[row, col] = \
+                                    [255, 255, 255, 255]
+                return
         # escape key pressed: enter drawing phase
         elif event_type == pygame.KEYDOWN and event.key == 27:
             self.drawing = True
@@ -250,10 +301,27 @@ class App:
                 self.open_list.append(node)
 
     def render(self):
+        # grid
         for row in range(self.rows):
             for col in range(self.cols):
                 pygame.draw.rect(self._display_surf, self.color_grid[row, col],
                                  (10*col - 1, 10*row - 1, 9, 9))
+        # buttons
+        pygame.draw.rect(self._display_surf, pygame.Color(0x2A, 0x9D, 0x87),
+                         (0, self.height-50-1, int(self.width/2),
+                         self.height-50-1))
+        text = self.font.render('Start', True, pygame.Color(0, 0, 0))
+        text_rect = text.get_rect(center=((int(self.width/4), self.height-25)))
+        self._display_surf.blit(text, text_rect)
+
+        pygame.draw.rect(self._display_surf, pygame.Color(0xE7, 0x6F, 0x51),
+                         (int(self.width/2), self.height-50-1, self.width,
+                         self.height-50-1))
+        text = self.font.render('Restart', True, pygame.Color(0, 0, 0))
+        text_rect = text.get_rect(
+            center=((int(3*self.width/4), self.height-25)))
+        self._display_surf.blit(text, text_rect)
+
         pygame.display.update()
 
     def cleanup(self):
