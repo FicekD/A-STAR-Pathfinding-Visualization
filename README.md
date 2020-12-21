@@ -1,5 +1,5 @@
 # A* Pathfinding visualization
-Visualization of A* pathfinding algorithm. File is builded for windows os. Start application with `dist/pathfinding.exe`.
+Visualization of A* pathfinding algorithm. File is builded for windows os.
 Resolution is fixed at 800x600.
 
 ### Controls
